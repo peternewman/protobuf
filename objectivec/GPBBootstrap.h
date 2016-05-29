@@ -37,13 +37,6 @@
 #define GPBOBJC_SKIP_MESSAGE_TEXTFORMAT_EXTRAS 0
 #endif
 
-// Most uses of protocol buffers don't need field options, by default the
-// static data will be compiled out, define this to 1 to include it. The only
-// time you need this is if you are doing introspection of the protocol buffers.
-#ifndef GPBOBJC_INCLUDE_FIELD_OPTIONS
-#define GPBOBJC_INCLUDE_FIELD_OPTIONS 0
-#endif
-
 // Used in the generated code to give sizes to enums. int32_t was chosen based
 // on the fact that Protocol Buffers enums are limited to this range.
 #if !__has_feature(objc_fixed_enum)
@@ -55,7 +48,7 @@
 // doesn't allow us to forward declare. We work around this one case by
 // providing a local definition. The default case has to use NS_ENUM for the
 // magic that is Swift bridging of enums.
-#if (__cplusplus && __cplusplus < 201103L)
+#if (defined(__cplusplus) && __cplusplus && __cplusplus < 201103L)
  #define GPB_ENUM(X) enum X : int32_t X; enum X : int32_t
 #else
  #define GPB_ENUM(X) NS_ENUM(int32_t, X)
@@ -89,4 +82,4 @@
 // generated Objective C sources.  In general we don't want to change the
 // runtime interfaces (or this version) as it means everything has to be
 // regenerated.
-#define GOOGLE_PROTOBUF_OBJC_GEN_VERSION 30000
+#define GOOGLE_PROTOBUF_OBJC_GEN_VERSION 30001

@@ -42,6 +42,15 @@ namespace protobuf {
 namespace compiler {
 namespace objectivec {
 
+// Generator options (see objectivec_generator.cc for a description of each):
+struct Options {
+  Options();
+  string expected_prefixes_path;
+};
+
+// Escape C++ trigraphs by escaping question marks to "\?".
+string EscapeTrigraphs(const string& to_escape);
+
 // Strips ".proto" or ".protodevel" from the end of a filename.
 string StripProto(const string& filename);
 
@@ -53,18 +62,17 @@ bool IsRetainedName(const string& name);
 // handling under ARC.
 bool IsInitName(const string& name);
 
-// Gets the name of the file we're going to generate (sans the .pb.h
-// extension).  This does not include the path to that file.
-string FileName(const FileDescriptor* file);
-
 // Gets the path of the file we're going to generate (sans the .pb.h
 // extension).  The path will be dependent on the objectivec package
 // declared in the proto package.
 string FilePath(const FileDescriptor* file);
 
+// Just like FilePath(), but without the directory part.
+string FilePathBasename(const FileDescriptor* file);
+
 // Gets the name of the root class we'll generate in the file.  This class
 // is not meant for external consumption, but instead contains helpers that
-// the rest of the the classes need
+// the rest of the classes need
 string FileClassName(const FileDescriptor* file);
 
 // These return the fully-qualified class name corresponding to the given
@@ -124,6 +132,22 @@ enum ObjectiveCType {
   OBJECTIVECTYPE_MESSAGE
 };
 
+template<class TDescriptor>
+string GetOptionalDeprecatedAttribute(const TDescriptor* descriptor, bool preSpace = true, bool postNewline = false) {
+  if (descriptor->options().deprecated()) {
+    string result = "DEPRECATED_ATTRIBUTE";
+    if (preSpace) {
+      result.insert(0, " ");
+    }
+    if (postNewline) {
+      result.append("\n");
+    }
+    return result;
+  } else {
+    return "";
+  }
+}
+
 string GetCapitalizedType(const FieldDescriptor* field);
 
 ObjectiveCType GetObjectiveCType(FieldDescriptor::Type field_type);
@@ -137,18 +161,32 @@ bool IsReferenceType(const FieldDescriptor* field);
 
 string GPBGenericValueFieldName(const FieldDescriptor* field);
 string DefaultValue(const FieldDescriptor* field);
+bool HasNonZeroDefaultValue(const FieldDescriptor* field);
 
 string BuildFlagsString(const vector<string>& strings);
 
+// Builds a HeaderDoc style comment out of the comments in the .proto file.
 string BuildCommentsString(const SourceLocation& location);
+
+// The name the commonly used by the library when built as a framework.
+// This lines up to the name used in the CocoaPod.
+extern const char* const ProtobufLibraryFrameworkName;
+// Returns the CPP symbol name to use as the gate for framework style imports
+// for the given framework name to use.
+string ProtobufFrameworkImportSymbol(const string& framework_name);
+
+// Checks if the file is one of the proto's bundled with the library.
+bool IsProtobufLibraryBundledProtoFile(const FileDescriptor* file);
 
 // Checks the prefix for a given file and outputs any warnings needed, if
 // there are flat out errors, then out_error is filled in and the result is
 // false.
-bool ValidateObjCClassPrefix(const FileDescriptor* file, string *out_error);
+bool ValidateObjCClassPrefix(const FileDescriptor* file,
+                             const Options& generation_options,
+                             string* out_error);
 
 // Generate decode data needed for ObjC's GPBDecodeTextFormatName() to transform
-// the input into the the expected output.
+// the input into the expected output.
 class LIBPROTOC_EXPORT TextFormatDecodeData {
  public:
   TextFormatDecodeData() {}

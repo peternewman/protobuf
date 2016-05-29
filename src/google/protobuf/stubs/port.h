@@ -53,7 +53,7 @@
   #if !defined(PROTOBUF_DISABLE_LITTLE_ENDIAN_OPT_FOR_TEST)
     #define PROTOBUF_LITTLE_ENDIAN 1
   #endif
-  #if defined(_MSC_VER) && _MSC_VER >= 1300
+  #if _MSC_VER >= 1300 && !defined(__INTEL_COMPILER)
     // If MSVC has "/RTCc" set, it will complain about truncating casts at
     // runtime.  This file contains some intentional truncating casts.
     #pragma runtime_checks("c", off)
@@ -276,10 +276,8 @@ inline void GOOGLE_UNALIGNED_STORE64(void *p, uint64 v) {
 #define GOOGLE_THREAD_LOCAL __thread
 #endif
 
-// The following guarantees declaration of the byte swap functions, and
-// defines __BYTE_ORDER for MSVC
+// The following guarantees declaration of the byte swap functions.
 #ifdef _MSC_VER
-#define __BYTE_ORDER __LITTLE_ENDIAN
 #define bswap_16(x) _byteswap_ushort(x)
 #define bswap_32(x) _byteswap_ulong(x)
 #define bswap_64(x) _byteswap_uint64(x)
