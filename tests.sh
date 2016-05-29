@@ -285,14 +285,15 @@ build_javascript() {
 # support, this should probably get updated to install steps and/or
 # rvm/gemfile/jdk/etc. entries rather than manually doing the work.
 
-# .travis.yml uses matrix.exclude to block the cases where app-get can't be
-# use to install things.
+# .travis.yml uses matrix.exclude to block the cases where apt-get can't be
+# used to install things.
 
 # -------- main --------
 
 if [ "$#" -ne 1 ]; then
   echo "
 Usage: $0 { cpp |
+            cpp_distcheck |
             csharp |
             java_jdk6 |
             java_jdk7 |
@@ -310,7 +311,8 @@ Usage: $0 { cpp |
             ruby20 |
             ruby21 |
             ruby22 |
-            jruby }
+            jruby |
+            javascript }
 "
   exit 1
 fi
